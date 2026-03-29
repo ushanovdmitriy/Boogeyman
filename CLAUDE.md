@@ -1,69 +1,26 @@
-# CLAUDE.md — Boogeyman
+# CLAUDE.md
 
-This file provides guidance for AI assistants (Claude, etc.) working in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 
-**Boogeyman** is a newly initialized project. The repository is in its early stages with no application code, build system, or dependencies configured yet.
+Boogeyman is a Telegram bot for reading and sending messages in a private channel, built with `python-telegram-bot` (v21+, async API).
 
-- **Repository**: `ushanovdmitriy/Boogeyman`
-- **Primary branch**: `main`
-- **License**: Not yet specified
+## Setup & Running
 
-## Repository Structure
-
-```
-Boogeyman/
-├── CLAUDE.md          # AI assistant guidance (this file)
-└── README.md          # Project description
+```bash
+pip install -r requirements.txt
+export TELEGRAM_BOT_TOKEN="<token from @BotFather>"
+export TELEGRAM_CHANNEL_ID="<channel id, e.g. -1001234567890>"
+python bot.py
 ```
 
-## Development Setup
+## Architecture
 
-No build tools, package managers, or dependencies are configured yet. As the project evolves, update this section with:
+Single-file bot (`bot.py`) using `python-telegram-bot`'s async `Application` builder pattern with long-polling (`app.run_polling()`).
 
-- Language and runtime requirements
-- How to install dependencies
-- How to build, run, test, and lint the project
+- **Config**: `BOT_TOKEN` and `CHANNEL_ID` from env vars (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHANNEL_ID`)
+- **Handlers**: `/start` command + `MessageHandler` filtered to the configured channel ID
+- **Stubs**: `handle_channel_message` (process incoming) and `send_message_to_channel` (post to channel) — not yet implemented
 
-## Git Workflow
-
-- The default branch is `main`.
-- Write clear, descriptive commit messages summarizing the "why" of the change.
-- Keep commits focused — one logical change per commit.
-
-## Code Conventions
-
-No conventions established yet. As code is added, document:
-
-- Language-specific style guides
-- Naming conventions (files, variables, functions)
-- Directory organization patterns
-- Testing expectations
-
-## Key Commands
-
-_To be added as the project develops._ Example format:
-
-```
-# Build
-<command>
-
-# Test
-<command>
-
-# Lint
-<command>
-
-# Run
-<command>
-```
-
-## Notes for AI Assistants
-
-- Read existing code before proposing changes.
-- Prefer editing existing files over creating new ones.
-- Do not add features, refactoring, or "improvements" beyond what is requested.
-- Keep solutions simple and minimal.
-- Do not introduce security vulnerabilities (injection, XSS, etc.).
-- Update this file when significant project infrastructure changes are made.
+All handler functions are `async` and use `ContextTypes.DEFAULT_TYPE`. The library is v21+ which uses the async API exclusively — do not use the deprecated synchronous patterns.
