@@ -1,77 +1,28 @@
 """
-Telegram bot for reading and sending messages in a private channel.
+Точка входа. Telegram-бот на python-telegram-bot (async, v21+).
 
-Uses python-telegram-bot library.
-Install: pip install python-telegram-bot
+Бот принимает команды от авторизованных пользователей и запускает
+полный pipeline: сбор сообщений → анализ → рендер HTML → отправка файла.
+
+Команды:
+  /start   — приветствие и инструкция
+  /report  — запустить генерацию отчёта за последний месяц
+  /status  — показать статус последней задачи (если генерация идёт в фоне)
 """
 
-import os
-import logging
+# TODO: реализовать /start handler — отвечать приветственным сообщением с описанием команд
 
-from telegram import Update
-from telegram.ext import (
-    Application,
-    CommandHandler,
-    MessageHandler,
-    ContextTypes,
-    filters,
-)
+# TODO: реализовать /report handler:
+#   1. Ответить "Начинаю сбор данных..." чтобы пользователь видел прогресс
+#   2. Вызвать collector.get_messages(CHAT_ID) — может занять время
+#   3. Вызвать analyzer.run_analysis(messages)
+#   4. Вызвать renderer.generate_and_save(analysis_data)
+#   5. Отправить HTML-файл пользователю через context.bot.send_document()
+#   6. Обработать возможные ошибки и сообщить пользователю
 
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO,
-)
-logger = logging.getLogger(__name__)
+# TODO: добавить проверку что команды принимаются только от разрешённых user_id
+#   (захардкодить список или читать из .env как ALLOWED_USER_IDS)
 
-# Bot token from @BotFather
-BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+# TODO: рассмотреть запуск collector + analyzer в asyncio executor чтобы не блокировать event loop
 
-# Private channel ID (e.g. -1001234567890)
-CHANNEL_ID = int(os.getenv("TELEGRAM_CHANNEL_ID", "0"))
-
-
-async def handle_channel_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Called when a new message appears in the private channel.
-
-    TODO: implement message reading/processing logic.
-    """
-    pass
-
-
-async def send_message_to_channel(context: ContextTypes.DEFAULT_TYPE, text: str) -> None:
-    """Send a text message to the private channel.
-
-    TODO: implement message sending logic.
-    """
-    pass
-
-
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Handle /start command."""
-    await update.message.reply_text("Bot is running.")
-
-
-def main() -> None:
-    if not BOT_TOKEN:
-        raise RuntimeError("TELEGRAM_BOT_TOKEN env variable is not set")
-    if CHANNEL_ID == 0:
-        raise RuntimeError("TELEGRAM_CHANNEL_ID env variable is not set")
-
-    app = Application.builder().token(BOT_TOKEN).build()
-
-    app.add_handler(CommandHandler("start", start))
-
-    # Listen to messages from the private channel
-    app.add_handler(
-        MessageHandler(
-            filters.Chat(chat_id=CHANNEL_ID) & filters.ALL,
-            handle_channel_message,
-        )
-    )
-
-    logger.info("Bot started, listening for channel %s", CHANNEL_ID)
-    app.run_polling()
-
-
-if __name__ == "__main__":
-    main()
+# TODO: реализовать main() — строить Application, регистрировать handlers, запускать run_polling()
